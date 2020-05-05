@@ -41,26 +41,26 @@ module.exports = function (knex) {
   }
 
   // Useful in cases where we want to just test the sql for both PG and SQLite3
-  function testSqlTester(qb, driverName, statement, bindings, returnval) {
+  function testSqlTester(qb, driverName, expectedSql, bindings, returnval) {
     if (Array.isArray(driverName)) {
       driverName.forEach(function (val) {
-        testSqlTester(qb, val, statement, bindings, returnval);
+        testSqlTester(qb, val, expectedSql, bindings, returnval);
       });
     } else if (client.driverName === driverName) {
-      const sql = qb.toSQL();
+      const actualSql = qb.toSQL();
 
-      if (statement) {
-        if (Array.isArray(sql)) {
-          expect(_.map(sql, 'sql')).to.eql(statement);
+      if (expectedSql) {
+        if (Array.isArray(actualSql)) {
+          expect(_.map(actualSql, 'sql')).to.eql(expectedSql);
         } else {
-          expect(sql.sql).to.equal(statement);
+          expect(actualSql.sql).to.equal(expectedSql);
         }
       }
       if (bindings) {
-        if (Array.isArray(sql)) {
-          compareBindings(_.map(sql, 'bindings'), bindings);
+        if (Array.isArray(actualSql)) {
+          compareBindings(_.map(actualSql, 'bindings'), bindings);
         } else {
-          compareBindings(sql.bindings, bindings);
+          compareBindings(actualSql.bindings, bindings);
         }
       }
       if (returnval !== undefined && returnval !== null) {
